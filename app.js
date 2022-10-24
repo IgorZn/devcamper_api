@@ -4,8 +4,10 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+// Routers file
+const bootcamps = require('./routes/bootcamps.route');
+var indexRouter = require('./routes/index.route');
+var usersRouter = require('./routes/users.route');
 
 var app = express();
 
@@ -19,6 +21,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Mount routers
+app.use('/api/v1/bootcamps', bootcamps);
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
