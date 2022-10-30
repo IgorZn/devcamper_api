@@ -3,6 +3,14 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const dotenv = require("dotenv");
+const connDB = require("./conf/db");
+
+// Load env consts
+dotenv.config({ path: './conf/config.env' });
+
+// Connect to DB
+connDB()
 
 // Routers file
 const bootcamps = require('./routes/bootcamps.routes');

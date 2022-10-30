@@ -29,8 +29,8 @@ const server = http.createServer(app);
 /**
  * Listen on provided port, on all network interfaces.
  */
-console.log(" Server starting on port - " + port)
-console.log(" URL - http://localhost:" + port)
+console.log(` Server starting on port - ${port}`.cyan.bgCyan)
+console.log(` URL - http://localhost:${port}`.cyan.bgCyan)
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
@@ -61,6 +61,7 @@ function normalizePort(val) {
 
 function onError(error) {
   if (error.syscall !== 'listen') {
+    console.log(`Server error: ${error.message}`.red.bold)
     throw error;
   }
 
