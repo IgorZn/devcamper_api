@@ -27,6 +27,7 @@ app.set('view engine', 'pug');
 if (process.env.NODE_ENV.startsWith('dev')) {
   app.use(logger('dev'));
 }
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
