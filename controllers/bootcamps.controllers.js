@@ -1,4 +1,5 @@
 const Bootcamp = require("../models/Bootcamps.model");
+const ErrResponse = require("../utils/errorResponse");
 
 
 // @desc        Get all bootcamps
@@ -10,9 +11,7 @@ exports.getRootBC = async (req, res, next) => {
             .status(200)
             .json({success: true, count: response.length, data: response});
     }).catch(err => {
-        res
-            .status(400)
-            .json({success: false, data: null});
+        next(err);
     })
 
 };
@@ -26,9 +25,7 @@ exports.getBCbyID = async (req, res, next) => {
             .status(200)
             .json({success: true, data: response});
     }).catch(err => {
-        res
-            .status(400)
-            .json({success: false, data: null});
+        next(new ErrResponse(err, 404))
     })
 };
 
@@ -43,9 +40,7 @@ exports.postBC = async (req, res, next) => {
                 .json({success: true, data: response});
         })
         .catch(err => {
-            res
-                .status(400)
-                .json({success: false, data: err.message});
+            next(err);
         })
 };
 
@@ -58,13 +53,11 @@ exports.putBC = async (req, res, next) => {
         runValidators: true
     }, (err, doc) => {
         if (err) {
-            res
-                .status(200)
-                .json({success: true, data: err });
+            next(new ErrResponse(err, 404));
         } else {
             res
                 .status(200)
-                .json({success: false, data: doc });
+                .json({success: false, data: doc});
         }
     })
 };
@@ -75,13 +68,11 @@ exports.putBC = async (req, res, next) => {
 exports.deleteBC = async (req, res, next) => {
     Bootcamp.findByIdAndDelete(req.params.id, (err, doc) => {
         if (err) {
-            res
-                .status(200)
-                .json({success: true, data: err });
+            next(new ErrResponse(err, 404));
         } else {
             res
                 .status(400)
-                .json({success: false, data: doc });
+                .json({success: false, data: doc});
         }
     })
 };
