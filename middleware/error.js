@@ -10,9 +10,7 @@ const getErrMsg = (err) => {
         if (err.message.includes(key)) {
             return errMsgs[key]
         }
-        ;
     }
-    ;
 }
 
 const errorHandler = async (err, req, res, next) => {

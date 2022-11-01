@@ -13,7 +13,6 @@ exports.getRootBC = async (req, res, next) => {
     }).catch(err => {
         next(err);
     })
-
 };
 
 // @desc        Get single bootcamps
