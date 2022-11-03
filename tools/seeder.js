@@ -18,9 +18,6 @@ mongoose.connect(process.env.MNG_URI, {
     useNewUrlParser: true,
 });
 
-// Close connection
-const close = mongoose.connection.close
-
 const importData = async () => {
     Bootcamp.create(bootcamps)
         .then(result => {

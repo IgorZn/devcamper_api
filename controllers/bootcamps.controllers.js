@@ -1,4 +1,5 @@
 const Bootcamp = require("../models/Bootcamps.model");
+const geocoder = require('../utils/geocoder.utils');
 const ErrResponse = require("../utils/errorResponse");
 
 
@@ -72,6 +73,31 @@ exports.deleteBC = async (req, res, next) => {
             res
                 .status(200)
                 .json({success: true, data: doc});
+        }
+    })
+};
+
+// @desc        Get bootcamp within a radius
+// @route       GET /api/v1/:zipcode/:distance
+// @access      Private
+exports.getBCinRadius = async (req, res, next) => {
+    const {zipcode, distance} = req.params;
+
+    // Get lat/lng from geocoder
+    const loc = await geocoder.geocode({zipcode});
+    const lat = loc[0].latitude;
+    const lng = loc[0].longitude;
+
+    // Calc radius using radians
+    const radius = distance / 3963;
+
+    Bootcamp.find({location: {$geoWithin: {$centerSphere: [[lat, lng], radius]}}}, (err, doc) => {
+        if (err) {
+            next(new ErrResponse(err, 404));
+        } else {
+            res
+                .status(200)
+                .json({success: true, count: doc.length, data: doc});
         }
     })
 };
