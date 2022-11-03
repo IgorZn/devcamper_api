@@ -70,8 +70,8 @@ exports.deleteBC = async (req, res, next) => {
             next(new ErrResponse(err, 404));
         } else {
             res
-                .status(400)
-                .json({success: false, data: doc});
+                .status(200)
+                .json({success: true, data: doc});
         }
     })
 };

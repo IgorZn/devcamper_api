@@ -7,6 +7,8 @@ const connDB = async () => {
     });
 
     console.log(`MongoDB connected: ${conn.connections[0].host}`.yellow.bold)
+
+    return conn
 }
 
 
