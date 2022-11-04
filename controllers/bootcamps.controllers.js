@@ -7,13 +7,16 @@ const ErrResponse = require("../utils/errorResponse");
 // @route       GET /api/v1/bootcamps
 // @access      Public
 exports.getRootBC = async (req, res, next) => {
-    Bootcamp.find().then(response => {
+    let query = JSON.stringify(req.query);
+    query = query.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);
+
+    Bootcamp.find(JSON.parse(query)).then(response => {
         res
             .status(200)
             .json({success: true, count: response.length, data: response});
     }).catch(err => {
         next(err);
-    })
+    });
 };
 
 // @desc        Get single bootcamps
