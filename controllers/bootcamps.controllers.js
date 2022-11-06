@@ -1,16 +1,39 @@
 const Bootcamp = require("../models/Bootcamps.model");
 const geocoder = require('../utils/geocoder.utils');
 const ErrResponse = require("../utils/errorResponse");
+const removeFields = require("../utils/request.utils")
 
 
 // @desc        Get all bootcamps
 // @route       GET /api/v1/bootcamps
 // @access      Public
 exports.getRootBC = async (req, res, next) => {
-    let query = JSON.stringify(req.query);
+    // remove 'select' from 'query'
+    const reqQuery = removeFields(req);
+
+    // Now without 'select' if it was
+    let query = JSON.stringify(reqQuery);
+
+    // Create operators (add $)
     query = query.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);
 
-    Bootcamp.find(JSON.parse(query)).then(response => {
+    // Do DB query with operators
+    const dbQuery = Bootcamp.find(JSON.parse(query));
+
+    // Do SELECT if exist
+    if (req.query.select){
+        const selectedFields = req.query.select.split(',').join(' ');
+        dbQuery.select(selectedFields);
+    };
+
+    // Do SORT if exist
+    if (req.query.sort){
+        const selectedFields = req.query.sort.split(',').join(' ');
+        dbQuery.sort(selectedFields);
+    };
+
+    // Finding resource
+    dbQuery.then(response => {
         res
             .status(200)
             .json({success: true, count: response.length, data: response});
