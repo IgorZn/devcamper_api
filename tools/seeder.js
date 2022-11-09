@@ -29,7 +29,7 @@ const importData = async () => {
     for (const key of Object.keys(dataJsonsAndModels)) {
         await dataJsonsAndModels[key][0].create(dataJsonsAndModels[key][1])
             .then(result => {
-                console.log(`[${Model}] Data imported...`.bgGreen.inverse);
+                console.log(`[${key}] Data imported...`.bgGreen.inverse);
             })
             .catch(err => {
                 console.log(err)
@@ -52,7 +52,7 @@ const deleteData = async () => {
     for (const key of Object.keys(dataJsonsAndModels)) {
         await dataJsonsAndModels[key][0].deleteMany()
             .then(result => {
-                console.log(`[${Model}] Data was deleted...`.bgRed.inverse);
+                console.log(`[${key}] Data was deleted...`.bgRed.inverse);
             })
             .catch(err => {
                 console.log(err)

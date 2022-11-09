@@ -1,7 +1,11 @@
+// Models
 const Bootcamp = require("../models/Bootcamps.model");
+const Course = require("../models/Courses.model");
+
+// Other
 const geocoder = require('../utils/geocoder.utils');
 const ErrResponse = require("../utils/errorResponse");
-const removeFields = require("../utils/request.utils")
+const removeFields = require("../utils/request.utils");
 
 
 // @desc        Get all bootcamps
@@ -21,16 +25,18 @@ exports.getRootBC = async (req, res, next) => {
     let dbQuery = Bootcamp.find(JSON.parse(query));
 
     // Do SELECT if exist
-    if (req.query.select){
+    if (req.query.select) {
         const selectedFields = req.query.select.split(',').join(' ');
         dbQuery.select(selectedFields);
-    };
+    }
+    ;
 
     // Do SORT if exist
-    if (req.query.sort){
+    if (req.query.sort) {
         const selectedFields = req.query.sort.split(',').join(' ');
         dbQuery.sort(selectedFields);
-    };
+    }
+    ;
 
     // Do pagination
     const page = parseInt(req.query.page, 10) || 1;
@@ -39,26 +45,31 @@ exports.getRootBC = async (req, res, next) => {
     const endIndex = page * limit;
     const total = await Bootcamp.countDocuments();
 
-    dbQuery = dbQuery.skip(startIndex).limit(limit);
+    dbQuery = dbQuery.skip(startIndex).limit(limit).populate({
+        path: 'courses',
+        select: 'title description'
+    });
 
     // Pagination result
     const pagination = {};
 
     pagination.totalDocs = total;
 
-    if(endIndex < total){
+    if (endIndex < total) {
         pagination.next = {
             page: page + 1,
             limit
         }
-    };
+    }
+    ;
 
-    if(startIndex > 0){
+    if (startIndex > 0) {
         pagination.prev = {
             page: page - 1,
             limit
         }
-    };
+    }
+    ;
 
 
     // Finding resource
@@ -75,7 +86,10 @@ exports.getRootBC = async (req, res, next) => {
 // @route       GET /api/v1/bootcamps/:id
 // @access      Public
 exports.getBCbyID = async (req, res, next) => {
-    Bootcamp.findById(req.params.id).then(response => {
+    Bootcamp.findById(req.params.id).populate({
+        path: 'courses',
+        select: 'title description'
+    }).then(response => {
         res
             .status(200)
             .json({success: true, data: response});
@@ -121,15 +135,18 @@ exports.putBC = async (req, res, next) => {
 // @route       DELETE /api/v1/bootcamps/:id
 // @access      Private
 exports.deleteBC = async (req, res, next) => {
-    Bootcamp.findByIdAndDelete(req.params.id, (err, doc) => {
+    Bootcamp.findByIdAndDelete(req.params.id, async (err, doc) => {
         if (err) {
             next(new ErrResponse(err, 404));
         } else {
+            // Cascade delete courses
+            doc.courses = await Course.deleteMany({ bootcamp: req.params.id })
+
             res
                 .status(200)
                 .json({success: true, data: doc});
         }
-    })
+    });
 };
 
 // @desc        Get bootcamp within a radius

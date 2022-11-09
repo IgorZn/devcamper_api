@@ -2,6 +2,12 @@ const express = require('express');
 const {getRootBC, getBCbyID, postBC, deleteBC, putBC, getBCinRadius} = require("../controllers/bootcamps.controllers");
 const router = express.Router();
 
+// Include other resources routes
+const courseRouter = require('./courses.routes');
+
+// Re-route into other resource routers
+router.use('/:bootcampId/courses', courseRouter);
+
 router.route('/')
     .get(getRootBC)
     .post(postBC)

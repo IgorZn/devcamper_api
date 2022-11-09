@@ -1,6 +1,4 @@
 const mongoose = require('mongoose');
-const slugify = require('slugify');
-const geocoder = require('../utils/geocoder.utils');
 
 const CourseSchema = new mongoose.Schema({
     title: {
