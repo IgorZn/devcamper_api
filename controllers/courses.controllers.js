@@ -20,7 +20,7 @@ exports.getCourses = async (req, res, next) => {
         query = Course.find()
     }
 
-    await query.then(response => {
+    query.then(response => {
         res
             .status(200)
             .json({success: true, count: response.length, data: response});
@@ -59,7 +59,7 @@ exports.addCourse = async (req, res, next) => {
     */
 
     // Check that Bootcamp exist
-    Bootcamp.findById(bootcampID).then(result => {
+    await Bootcamp.findById(bootcampID).then(result => {
         // Add course
         Course.create(req.body)
             .then(response => {
@@ -72,6 +72,43 @@ exports.addCourse = async (req, res, next) => {
             })
     }).catch(err => {
         next(new ErrResponse(err, 404))
+    })
+
+};
+
+
+// @desc        Update course
+// @route       PUT /api/v1/courses/:id
+// @access      Private
+exports.updCourse = async (req, res, next) => {
+    Course.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+        runValidators: true
+    }, (err, doc) => {
+        if (err) {
+            next(new ErrResponse(err, 404));
+        } else {
+            res
+                .status(200)
+                .json({success: false, data: doc});
+        }
+    })
+
+};
+
+
+// @desc        Delete course
+// @route       DELETE /api/v1/courses/:id
+// @access      Private
+exports.delCourse = async (req, res, next) => {
+    Course.findByIdAndRemove(req.params.id, (err, doc) => {
+        if (err) {
+            next(new ErrResponse(err, 404));
+        } else {
+            res
+                .status(200)
+                .json({success: true, data: doc});
+        }
     })
 
 };
