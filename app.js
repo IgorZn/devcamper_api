@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const dotenv = require("dotenv");
 const connDB = require("./conf/db");
+const fileUpload = require("express-fileupload");
 
 // Load env consts
 dotenv.config({ path: './conf/config.env' });
@@ -13,14 +14,24 @@ dotenv.config({ path: './conf/config.env' });
 // Connect to DB
 connDB()
 
+
+const app = express();
+
 // Routers file
 const bootcamps = require('./routes/bootcamps.routes');
 const courses = require('./routes/courses.routes');
 const indexRouter = require('./routes/index.route');
 const usersRouter = require('./routes/users.route');
 
+// Simple express middleware for uploading files.
+app.use(fileUpload({
+    limits: {
+        fileSize: process.env.MAX_IMAGE_SIZE
+    },
+    useTempFiles : true,
+    tempFileDir : '/tmp/'
+}));
 
-const app = express();
 
 
 app.set('views', path.join(__dirname, 'views'));

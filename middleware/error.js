@@ -14,8 +14,8 @@ const getErrMsg = (err) => {
 }
 
 const errorHandler = async (err, req, res, next) => {
-    console.error("Err stuck:".bold.bgMagenta, err.stack)
-    console.error("Err name:".bold.bgMagenta, Object.keys(err))
+    // console.error("Err stuck:".bold.bgMagenta, err.stack)
+    // console.error("Err name:".bold.bgMagenta, Object.keys(err))
     res
         .status(err.statusCode || 500)
         .json({success: false, error: getErrMsg(err) || err.message || "Internal Server Error"});
