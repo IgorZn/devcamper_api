@@ -6,81 +6,17 @@ const Course = require("../models/Courses.model");
 const path = require("node:path")
 const geocoder = require('../utils/geocoder.utils');
 const ErrResponse = require("../utils/errorResponse");
-const removeFields = require("../utils/request.utils");
+
 
 
 // @desc        Get all bootcamps
 // @route       GET /api/v1/bootcamps
 // @access      Public
 exports.getRootBC = async (req, res, next) => {
-    // remove 'select' from 'query'
-    const reqQuery = removeFields(req);
+    res
+        .status(200)
+        .json(res.advancedResults);
 
-    // Now without 'select' if it was
-    let query = JSON.stringify(reqQuery);
-
-    // Create operators (add $)
-    query = query.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);
-
-    // Do DB query with operators
-    let dbQuery = Bootcamp.find(JSON.parse(query));
-
-    // Do SELECT if exist
-    if (req.query.select) {
-        const selectedFields = req.query.select.split(',').join(' ');
-        dbQuery.select(selectedFields);
-    }
-    ;
-
-    // Do SORT if exist
-    if (req.query.sort) {
-        const selectedFields = req.query.sort.split(',').join(' ');
-        dbQuery.sort(selectedFields);
-    }
-    ;
-
-    // Do pagination
-    const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 25;
-    const startIndex = (page - 1) * limit;
-    const endIndex = page * limit;
-    const total = await Bootcamp.countDocuments();
-
-    dbQuery = dbQuery.skip(startIndex).limit(limit).populate({
-        path: 'courses',
-        select: 'title description'
-    });
-
-    // Pagination result
-    const pagination = {};
-
-    pagination.totalDocs = total;
-
-    if (endIndex < total) {
-        pagination.next = {
-            page: page + 1,
-            limit
-        }
-    }
-    ;
-
-    if (startIndex > 0) {
-        pagination.prev = {
-            page: page - 1,
-            limit
-        }
-    }
-    ;
-
-
-    // Finding resource
-    dbQuery.then(response => {
-        res
-            .status(200)
-            .json({success: true, pagination, count: response.length, data: response});
-    }).catch(err => {
-        next(err);
-    });
 };
 
 // @desc        Get single bootcamps
@@ -182,7 +118,6 @@ exports.uploadBCPhoto = async (req, res, next) => {
     let file;
     let uploadPath;
 
-
     // Check for bootcampId
     await Bootcamp.findById(req.params.id)
         .then(result => console.log('BootcampId is OK for image upload.'))
@@ -215,7 +150,9 @@ exports.uploadBCPhoto = async (req, res, next) => {
             return next(err);
 
         await Bootcamp.findByIdAndUpdate(req.params.id, {photo: file.name})
-            .then(result => {console.log('Bootcamp photo was update...'.green.bgCyan)})
+            .then(result => {
+                console.log('Bootcamp photo was update...'.green.bgCyan)
+            })
             .catch(err => next(err))
 
         res

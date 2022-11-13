@@ -1,15 +1,33 @@
 const express = require('express');
-const {getRootBC, getBCbyID, postBC, deleteBC, putBC, getBCinRadius, uploadBCPhoto} = require("../controllers/bootcamps.controllers");
 const router = express.Router();
 
-// Include other resources routes
+// Controllers
+const {
+    getRootBC,
+    getBCbyID,
+    postBC,
+    deleteBC,
+    putBC,
+    getBCinRadius,
+    uploadBCPhoto
+} = require("../controllers/bootcamps.controllers");
+
+// Middleware
+const advancedResult = require("../middleware/advancedResult");
+
+// Models
+const Bootcamp = require("../models/Bootcamps.model");
+
+// Include other/forwarded resources routes
 const courseRouter = require('./courses.routes');
 
 // Re-route into other resource routers
 router.use('/:bootcampId/courses', courseRouter);
 
+
+// Routes
 router.route('/')
-    .get(getRootBC)
+    .get(advancedResult(Bootcamp, {path: 'courses', select: 'title description'}), getRootBC)
     .post(postBC)
 
 
