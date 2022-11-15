@@ -13,10 +13,11 @@ exports.regUser = async (req, res, next) => {
 
     // Create user
     await User.create({name, email, password, role})
-        .then(data => {
+        .then(async data => {
+            const token = await User.getSignedJwtToken();
             res
                 .status(200)
-                .json({success: true, data});
+                .json({success: true, data, token});
 
         }).catch( err => next(err))
 
