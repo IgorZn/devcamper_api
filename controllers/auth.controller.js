@@ -19,7 +19,36 @@ exports.regUser = async (req, res, next) => {
                 .status(200)
                 .json({success: true, data, token});
 
-        }).catch( err => next(err))
+        }).catch(err => next(err))
 
+
+};
+
+
+// @desc        Login user
+// @route       POST /api/v1/auth/login
+// @access      Public
+exports.loginUser = async (req, res, next) => {
+    const {email, password} = req.body;
+
+    // Find user and send token
+    await User.findOne({email}, 'password')
+        .exec()
+        .then(async function (data) {
+                const isMatch = await User.matchPassword(password, data.password);
+
+                // Check passwords
+                if (isMatch) {
+                    const token = await User.getSignedJwtToken();
+
+                    res
+                        .status(200)
+                        .json({success: true, token});
+                } else {
+                    return next(new ErrResponse('Invalid credentials', 401))
+                };
+
+            }
+        )
 
 };
