@@ -14,13 +14,8 @@ exports.regUser = async (req, res, next) => {
     // Create user
     await User.create({name, email, password, role})
         .then(async data => {
-            const token = await User.getSignedJwtToken();
-            res
-                .status(200)
-                .json({success: true, data, token});
-
+            await sendTokenResponse(User, 200, res, data=data);
         }).catch(err => next(err))
-
 
 };
 
@@ -39,16 +34,31 @@ exports.loginUser = async (req, res, next) => {
 
                 // Check passwords
                 if (isMatch) {
-                    const token = await User.getSignedJwtToken();
-
-                    res
-                        .status(200)
-                        .json({success: true, token});
+                    await sendTokenResponse(User, 200, res);
                 } else {
                     return next(new ErrResponse('Invalid credentials', 401))
                 };
-
             }
         )
 
 };
+
+
+// Get token from model, create cookie and send response
+const sendTokenResponse = async (model, statusCode, res, data=undefined) => {
+    const token = await model.getSignedJwtToken();
+
+    const options = {
+        expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000),
+        httpOnly: true
+    }
+
+    if (process.env.NODE_ENV === 'production') {
+        options.secure = true;
+    }
+
+    res
+        .status(statusCode)
+        .cookie('token', token, options)
+        .json({ success: true, token, data})
+}
