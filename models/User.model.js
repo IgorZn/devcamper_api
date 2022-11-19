@@ -45,8 +45,9 @@ UserSchema.pre('save', async function () {
 // JWT return
 UserSchema.static({
 
-    getSignedJwtToken: async function () {
-        return jwt.sign({id: this._id}, process.env.JWT_SECRET, {expiresIn: process.env.JWT_EXPIRE})
+    getSignedJwtToken: async function (userData) {
+
+        return jwt.sign({id: userData._id}, process.env.JWT_SECRET, {expiresIn: process.env.JWT_EXPIRE})
     },
 
     matchPassword: async function (plainTextPassword, hashedPassword) {

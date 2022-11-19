@@ -8,7 +8,6 @@ const geocoder = require('../utils/geocoder.utils');
 const ErrResponse = require("../utils/errorResponse");
 
 
-
 // @desc        Get all bootcamps
 // @route       GET /api/v1/bootcamps
 // @access      Public
@@ -72,18 +71,20 @@ exports.putBC = async (req, res, next) => {
 // @route       DELETE /api/v1/bootcamps/:id
 // @access      Private
 exports.deleteBC = async (req, res, next) => {
-    Bootcamp.findByIdAndDelete(req.params.id, async (err, doc) => {
-        if (err) {
-            next(new ErrResponse(err, 404));
-        } else {
-            // Cascade delete courses
-            doc.courses = await Course.deleteMany({bootcamp: req.params.id})
-
-            res
-                .status(200)
-                .json({success: true, data: doc});
-        }
-    });
+    Bootcamp.findByIdAndDelete(req.params.id)
+        .exec()
+        .then(async function (result) {
+            // Cascade delete COURSES
+            await Course.deleteMany({bootcamp: req.params.id})
+                .exec()
+                .then(doc => {
+                    res
+                        .status(200)
+                        .json({success: true, data: result, courses: doc});
+                })
+                .catch(err => next(err));
+        })
+        .catch(err => next(new ErrResponse(err, 404)));
 };
 
 // @desc        Get bootcamp within a radius
