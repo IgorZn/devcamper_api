@@ -12,6 +12,7 @@ const UserSchema = new mongoose.Schema({
             type: String,
             required: [true, 'Please add an email'],
             unique: true,
+            lowercase: true,
             match: [
                 /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
                 'Please add a valid email'
@@ -46,7 +47,6 @@ UserSchema.pre('save', async function () {
 UserSchema.static({
 
     getSignedJwtToken: async function (userData) {
-
         return jwt.sign({id: userData._id}, process.env.JWT_SECRET, {expiresIn: process.env.JWT_EXPIRE})
     },
 

@@ -25,22 +25,22 @@ const courseRouter = require('./courses.routes');
 router.use('/:bootcampId/courses', courseRouter);
 
 // Protect
-const { protect } = require('../middleware/auth.middleware');
+const { protect, authorize } = require('../middleware/auth.middleware');
 
 // Routes
 router.route('/')
     .get(advancedResult(Bootcamp, {path: 'courses', select: 'title description'}), getRootBC)
-    .post(protect, postBC)
+    .post(protect, authorize('publisher', 'admin'), postBC)
 
 
 router.route('/:id')
     .get(getBCbyID)
-    .put(protect, putBC)
-    .delete(protect, deleteBC)
+    .put(protect, authorize('publisher', 'admin'), putBC)
+    .delete(protect, authorize('publisher', 'admin'), deleteBC)
 
 
 router.route('/:id/photo')
-    .put(protect, uploadBCPhoto)
+    .put(protect, authorize('publisher', 'admin'), uploadBCPhoto)
 
 
 router.route('/radius/:zipcode/:distance')

@@ -38,8 +38,8 @@ exports.loginUser = async (req, res, next) => {
             } else {
                 return next(new ErrResponse('Invalid credentials', 401))
             }
-            ;
         })
+        .catch(e => next(e))
 
 };
 

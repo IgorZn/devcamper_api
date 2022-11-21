@@ -32,4 +32,15 @@ exports.protect = async (req, res, next) => {
         return next(e)
     }
 
+};
+
+
+// Grant access to specific roles
+exports.authorize = (...roles) => {
+    return (req, res, next) => {
+        if(!roles.includes(req.user.role)) {
+            return next(new ErrResponse(`User role ${req.user.role} is NOT authorize to access this roure`, 403))
+        }
+        next();
+    }
 }
