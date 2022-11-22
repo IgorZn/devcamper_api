@@ -10,10 +10,12 @@ dotenv.config({path: './conf/config.env'});
 // load models
 const Bootcamp = require("../models/Bootcamps.model");
 const Course = require("../models/Courses.model");
+const User = require("../models/User.model")
 
 // read JSON
 const bootcamps = require('../_data/bootcamps.json');
 const courses = require('../_data/courses.json');
+const users = require('../_data/users.json')
 
 // Connect to DB
 mongoose.connect(process.env.MNG_URI, {
@@ -22,7 +24,8 @@ mongoose.connect(process.env.MNG_URI, {
 
 const dataJsonsAndModels = {
     BootcampModel: [Bootcamp, bootcamps],
-    CourseModel: [Course, courses]
+    CourseModel: [Course, courses],
+    UserModel: [User, users],
 };
 
 const importData = async () => {
@@ -36,7 +39,9 @@ const importData = async () => {
             })
     }
 
-    process.exit()
+    if (!process.argv[2].includes('di')) {
+        process.exit()
+    }
 
     // Bootcamp.create(bootcamps)
     //     .then(result => {
@@ -59,7 +64,10 @@ const deleteData = async () => {
             })
     }
 
-    process.exit()
+    if (!process.argv[2].includes('di')) {
+        process.exit()
+    }
+
 
     // Bootcamp.deleteMany()
     //     .then(result => {
@@ -71,9 +79,16 @@ const deleteData = async () => {
     //     })
 };
 
+const deleteImportData = async () => {
+    await deleteData()
+    await importData()
+    process.exit()
+};
+
 const tools = {
     '-i': importData,
-    '-d': deleteData
+    '-d': deleteData,
+    '-di': deleteImportData
 };
 
 

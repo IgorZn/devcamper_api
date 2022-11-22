@@ -4,7 +4,6 @@ const router = express.Router();
 
 // Controllers
 const {regUser, loginUser, getMe} = require("../controllers/auth.controller");
-const {get} = require("mongoose");
 const {protect} = require("../middleware/auth.middleware");
 
 

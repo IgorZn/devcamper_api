@@ -18,6 +18,7 @@ exports.getRootBC = async (req, res, next) => {
 
 };
 
+
 // @desc        Get single bootcamps
 // @route       GET /api/v1/bootcamps/:id
 // @access      Public
@@ -34,20 +35,31 @@ exports.getBCbyID = async (req, res, next) => {
     })
 };
 
+
 // @desc        Create bootcamp
 // @route       POST /api/v1/bootcamps
 // @access      Private
 exports.postBC = async (req, res, next) => {
+    // Add user ID
+    req.body.user = req.user.id;
+
+    // If the user is NOT an admin, they can only add ONE bootcamp
+    await Bootcamp.findOne({ user: req.user.id})
+        .then( result => {
+            if( result && req.user.role != 'admin') {
+                return next(new ErrResponse('The current user already published a bootcamp', 400))
+            }
+        }).catch(e => next(e));
+
     Bootcamp.create(req.body)
         .then(response => {
             res
                 .status(201)
                 .json({success: true, data: response});
         })
-        .catch(err => {
-            next(err);
-        })
+        .catch(e => next(e));
 };
+
 
 // @desc        Update bootcamp
 // @route       PUT /api/v1/bootcamps/:id
@@ -66,6 +78,7 @@ exports.putBC = async (req, res, next) => {
         }
     })
 };
+
 
 // @desc        Delete bootcamp
 // @route       DELETE /api/v1/bootcamps/:id
@@ -86,6 +99,7 @@ exports.deleteBC = async (req, res, next) => {
         })
         .catch(err => next(new ErrResponse(err, 404)));
 };
+
 
 // @desc        Get bootcamp within a radius
 // @route       GET /api/v1/:zipcode/:distance
@@ -111,6 +125,7 @@ exports.getBCinRadius = async (req, res, next) => {
         }
     })
 };
+
 
 // @desc        Upload photo for bootcamp
 // @route       PUT /api/v1/bootcamps/:id/photo
