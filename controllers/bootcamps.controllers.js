@@ -44,9 +44,9 @@ exports.postBC = async (req, res, next) => {
     req.body.user = req.user.id;
 
     // If the user is NOT an admin, they can only add ONE bootcamp
-    await Bootcamp.findOne({ user: req.user.id})
-        .then( result => {
-            if( result && req.user.role != 'admin') {
+    await Bootcamp.findOne({user: req.user.id})
+        .then(result => {
+            if (result && req.user.role != 'admin') {
                 return next(new ErrResponse('The current user already published a bootcamp', 400))
             }
         }).catch(e => next(e));
@@ -65,18 +65,30 @@ exports.postBC = async (req, res, next) => {
 // @route       PUT /api/v1/bootcamps/:id
 // @access      Private
 exports.putBC = async (req, res, next) => {
-    Bootcamp.findByIdAndUpdate(req.params.id, req.body, {
-        new: true,
-        runValidators: true
-    }, (err, doc) => {
-        if (err) {
-            next(new ErrResponse(err, 404));
-        } else {
-            res
-                .status(200)
-                .json({success: false, data: doc});
-        }
-    })
+    await Bootcamp.findById(req.params.id)
+        .exec()
+        .then(result => {
+            // Make sure user bootcamp owner
+            if (result.user.toString() !== req.user.id && req.user.role !== 'admin') {
+                return next(new ErrResponse('You are not authorized to update/edit/delete this bootcamp', 401))
+            }
+
+            // else UPDATE bootcamp
+            Bootcamp.findByIdAndUpdate(req.params.id, req.body, {
+                new: true,
+                runValidators: true
+            }, (err, doc) => {
+                if (err) {
+                    next(new ErrResponse(err, 404));
+                } else {
+                    res
+                        .status(200)
+                        .json({success: false, data: doc});
+                }
+            })
+        }).catch(e => next(e))
+
+
 };
 
 
@@ -84,20 +96,33 @@ exports.putBC = async (req, res, next) => {
 // @route       DELETE /api/v1/bootcamps/:id
 // @access      Private
 exports.deleteBC = async (req, res, next) => {
-    Bootcamp.findByIdAndDelete(req.params.id)
+    await Bootcamp.findById(req.params.id)
         .exec()
-        .then(async function (result) {
-            // Cascade delete COURSES
-            await Course.deleteMany({bootcamp: req.params.id})
+        .then(result_ => {
+            // Make sure user bootcamp owner
+            if (result_.user.toString() !== req.user.id && req.user.role !== 'admin') {
+                return next(new ErrResponse('You are not authorized to update/edit/delete this bootcamp', 401))
+            }
+
+            // else DELETE bootcamp
+            Bootcamp.findByIdAndDelete(req.params.id)
                 .exec()
-                .then(doc => {
-                    res
-                        .status(200)
-                        .json({success: true, data: result, courses: doc});
+                .then(async function (result) {
+
+                    // Cascade delete COURSES
+                    await Course.deleteMany({bootcamp: req.params.id})
+                        .exec()
+                        .then(doc => {
+                            res
+                                .status(200)
+                                .json({success: true, data: result, courses: doc});
+                        })
+                        .catch(err => next(err));
                 })
-                .catch(err => next(err));
+                .catch(err => next(new ErrResponse(err, 404)));
         })
-        .catch(err => next(new ErrResponse(err, 404)));
+
+
 };
 
 
@@ -135,8 +160,18 @@ exports.uploadBCPhoto = async (req, res, next) => {
     let uploadPath;
 
     // Check for bootcampId
-    await Bootcamp.findById(req.params.id)
-        .then(result => console.log('BootcampId is OK for image upload.'))
+    const notAuthorized = await Bootcamp.findById(req.params.id)
+        .exec()
+        .then(result => {
+            // Make sure user bootcamp owner
+            if (result.user.toString() !== req.user.id && req.user.role !== 'admin') {
+                return true
+            }
+
+            // else
+            console.log('BootcampId is OK for image upload.'.green.bgCyan)
+            return false
+        })
         .catch(err => next(new ErrResponse(err, 404)))
 
     // Check for file
@@ -161,18 +196,23 @@ exports.uploadBCPhoto = async (req, res, next) => {
     uploadPath = path.join(process.env.FILE_UPLOAD_PATH, file.name)
 
     // Use the mv() method to place the file somewhere on your server
-    await file.mv(uploadPath, async function (err) {
-        if (err)
-            return next(err);
+    if (!notAuthorized) {
+        await file.mv(uploadPath, async function (err) {
+            if (err)
+                return next(err);
 
-        await Bootcamp.findByIdAndUpdate(req.params.id, {photo: file.name})
-            .then(result => {
-                console.log('Bootcamp photo was update...'.green.bgCyan)
-            })
-            .catch(err => next(err))
+            await Bootcamp.findByIdAndUpdate(req.params.id, {photo: file.name})
+                .then(result => {
+                    console.log('Bootcamp photo was update...'.green.bgCyan)
+                })
+                .catch(err => next(err))
 
-        res
-            .status(200)
-            .json({success: true, data: file.name});
-    });
+            res
+                .status(200)
+                .json({success: true, data: file.name});
+        })
+    } else {
+        return next(new ErrResponse('You are not authorized to update/edit/delete this bootcamp', 401))
+    }
+
 };
