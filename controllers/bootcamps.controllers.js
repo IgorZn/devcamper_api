@@ -49,15 +49,18 @@ exports.postBC = async (req, res, next) => {
             if (result && req.user.role != 'admin') {
                 return next(new ErrResponse('The current user already published a bootcamp', 400))
             }
+
+            // Create bootcamp
+            return Bootcamp.create(req.body)
+                .then(response => {
+                    res
+                        .status(201)
+                        .json({success: true, data: response});
+                })
+                .catch(e => next(e));
         }).catch(e => next(e));
 
-    Bootcamp.create(req.body)
-        .then(response => {
-            res
-                .status(201)
-                .json({success: true, data: response});
-        })
-        .catch(e => next(e));
+
 };
 
 
