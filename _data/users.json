@@ -106,8 +106,8 @@
 	},
 	{
 		"_id": "637b24e2ae6ba055627588ff",
-		"name": "User Userovich",
-		"email": "user@abc.com",
+		"name": "User1 Userovich",
+		"email": "user1@abc.com",
 		"role": "user",
 		"password": "qwerty"
 	},

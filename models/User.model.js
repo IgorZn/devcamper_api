@@ -31,6 +31,7 @@ const UserSchema = new mongoose.Schema({
         },
         resetPasswordToken: String,
         resetPasswordExpire: Date,
+
     },
     {
         timestamps: true
@@ -38,9 +39,32 @@ const UserSchema = new mongoose.Schema({
 );
 
 // Encrypt password
-UserSchema.pre('save', async function () {
+UserSchema.pre('save', async function (next) {
+    // Если мы НЕ изменяем 'password', то идем просто дальше...
+    if (!this.isModified('password')){
+        next();
+    }
+
+    // Run below ONLY if we're modifying PASSWORD field
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
+})
+
+UserSchema.method({
+    getResetPwdToken: function () {
+        // Generate token
+        const resetToken = crypto.randomBytes(20).toString('hex');
+
+        // Hash token and set to 'resetPasswordToken'
+        this.resetPasswordToken = crypto
+            .createHash('sha256')
+            .update(resetToken)
+            .digest('hex');
+
+        // Set expire
+        this.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
+    }
+
 })
 
 // JWT return
@@ -55,7 +79,7 @@ UserSchema.static({
             .then(function (result) {
                 return result
             })
-    }
+    },
 
 })
 

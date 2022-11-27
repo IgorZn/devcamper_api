@@ -61,6 +61,27 @@ exports.getMe = async (req, res, next) => {
 };
 
 
+// @desc        Forgot password
+// @route       POST /api/v1/auth/forgotpass
+// @access      Public
+exports.forgotPwd = async (req, res, next) => {
+
+    // Find user and send token
+    await User.findOne({ email: req.body.email })
+        .exec()
+        .then(function (data) {
+            // Get reset token
+            const resetToken = data.getResetPwdToken()
+            data.save({ validateBeforeSave: false })
+
+            res
+                .status(200)
+                .json({success: true, data, resetToken})
+        }).catch(err => next(new ErrResponse(err, 404)))
+
+};
+
+
 // Get token from model, create cookie and send response
 const sendTokenResponse = async (model, statusCode, res, data = undefined) => {
     const token = await model.getSignedJwtToken(data);
