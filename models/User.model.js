@@ -63,6 +63,10 @@ UserSchema.method({
 
         // Set expire
         this.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
+    },
+
+    setNewPwd: function (newPass) {
+        this.password = newPass
     }
 
 })
