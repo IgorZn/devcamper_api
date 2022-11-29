@@ -87,52 +87,24 @@ exports.forgotPwd = async (req, res, next) => {
 // @route       PUT /api/v1/auth/resetpass/:resettoken
 // @access      Public
 exports.resetPwd = async (req, res, next) => {
-    const userData = {};
-
-    // Get hashed pass
-    const resetPasswordToken = crypto
-        .createHash('sha256')
-        .update(req.params.resettoken)
-        .digest('hex')
-
-    // Find user and send token
-    User.findOne({resetPasswordToken})
+    // Find user by token and date
+    await User.findOne({
+        resetPasswordToken: req.params.resettoken,
+        resetPasswordExpire: {$gt: Date.now()}
+    })
         .exec()
-        .then(doc => {
-            // Set new token
-            userData.password = req.body.password;
-            userData.resetPasswordToken = undefined;
-            userData.resetPasswordExpire = undefined;
+        .then(async doc => {
+            // Update password
+            doc.password = req.body.password;
+            doc.resetPasswordToken = undefined;
+            doc.resetPasswordExpire = undefined;
 
-            doc.setNewPwd(req.body.password)
+            // Save new password
+            await doc.save()
 
-            // Send new token
-            sendTokenResponse(User, 200, res, doc);
-        })
-
-
-    await User.updateOne({resetPasswordToken}, userData)
-        .exec()
-        .then(doc => {
-
-
-        }).catch(err => next(new ErrResponse(err, 400)))
-
-    // User.find({resetPasswordToken}, function (err, userData) {
-    //     if (err) next(new ErrResponse(err, 400))
-    //
-    //     // Set new token
-    //     userData.password = req.body.password;
-    //     userData.resetPasswordToken = undefined;
-    //     userData.resetPasswordExpire = undefined;
-    //
-    //     // Save
-    //     User.update({password: req.body.password})
-    //
-    //     // Send new token
-    //     sendTokenResponse(userData, 200, res);
-    //
-    // })
+            // Send new token based on new password
+            await sendTokenResponse(User, 200, res, data = doc);
+        }).catch(err => next(new ErrResponse('Invalid token', 400)))
 
 };
 

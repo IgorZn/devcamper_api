@@ -41,7 +41,7 @@ const UserSchema = new mongoose.Schema({
 // Encrypt password
 UserSchema.pre('save', async function (next) {
     // Если мы НЕ изменяем 'password', то идем просто дальше...
-    if (!this.isModified('password')){
+    if (!this.isModified('password')) {
         next();
     }
 
@@ -53,7 +53,9 @@ UserSchema.pre('save', async function (next) {
 UserSchema.method({
     getResetPwdToken: function () {
         // Generate token
-        const resetToken = crypto.randomBytes(20).toString('hex');
+        const resetToken = crypto
+            .randomBytes(20)
+            .toString('hex');
 
         // Hash token and set to 'resetPasswordToken'
         this.resetPasswordToken = crypto
@@ -65,8 +67,10 @@ UserSchema.method({
         this.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
     },
 
-    setNewPwd: function (newPass) {
-        this.password = newPass
+    setNewPwd: async function (newPass) {
+        this.password = newPass;
+        this.resetPasswordToken = undefined;
+        this.resetPasswordExpire = undefined;
     }
 
 })
