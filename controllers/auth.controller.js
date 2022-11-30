@@ -62,6 +62,27 @@ exports.getMe = async (req, res, next) => {
 };
 
 
+// @desc        Get current user
+// @route       PUT /api/v1/auth/updatedetails
+// @access      Private
+exports.updMe = async (req, res, next) => {
+    const fieldsToUpdate = {
+        name: req.body.name,
+        email: req.body.email
+    }
+
+    // Find user and update
+    await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {runValidators: true, new: true})
+        .exec()
+        .then(function (data) {
+            res
+                .status(200)
+                .json({success: true, data})
+        }).catch(err => next(err))
+
+};
+
+
 // @desc        Forgot password
 // @route       POST /api/v1/auth/forgotpass
 // @access      Public
@@ -105,6 +126,33 @@ exports.resetPwd = async (req, res, next) => {
             // Send new token based on new password
             await sendTokenResponse(User, 200, res, data = doc);
         }).catch(err => next(new ErrResponse('Invalid token', 400)))
+
+};
+
+
+// @desc        Update password
+// @route       PUT /api/v1/auth/updatepassword
+// @access      Private
+exports.updPwd = async (req, res, next) => {
+    // Find user by id
+    await User.findById(req.user.id)
+        .select('+password')
+        .exec()
+        .then(async user => {
+            // Check the password
+            if(!(await User.matchPassword(req.body.currentPassword, user.password))){
+                return next(new ErrResponse('Password is incorrect', 401))
+            }
+
+            // Update password
+            user.password = req.body.newPassword;
+
+            // Save new password
+            await user.save()
+
+            // Send new token based on new password
+            await sendTokenResponse(User, 200, res, data = user);
+        }).catch(err => next(new ErrResponse(err, 400)))
 
 };
 

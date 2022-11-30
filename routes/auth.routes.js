@@ -3,7 +3,7 @@ const router = express.Router();
 
 
 // Controllers
-const {regUser, loginUser, getMe, forgotPwd, resetPwd} = require("../controllers/auth.controller");
+const {regUser, loginUser, getMe, forgotPwd, resetPwd, updMe, updPwd} = require("../controllers/auth.controller");
 const {protect} = require("../middleware/auth.middleware");
 
 
@@ -17,8 +17,14 @@ router.route('/login')
 router.route('/me')
     .get(protect, getMe)
 
+router.route('/updatedetails')
+    .put(protect, updMe)
+
 router.route('/forgotpass')
     .post(forgotPwd)
+
+router.route('/updatepassword')
+    .put(protect, updPwd)
 
 router.route('/resetpass/:resettoken')
     .put(resetPwd)
