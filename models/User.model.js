@@ -66,13 +66,6 @@ UserSchema.method({
         // Set expire
         this.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
     },
-
-    setNewPwd: async function (newPass) {
-        this.password = newPass;
-        this.resetPasswordToken = undefined;
-        this.resetPasswordExpire = undefined;
-    }
-
 })
 
 // JWT return
