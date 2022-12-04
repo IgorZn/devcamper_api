@@ -1,4 +1,5 @@
 const NoSuchObj = { msg: "No such ObjectId", statusCode: 404 };
+const Undef = { msg: undefined, statusCode: undefined }
 
 const errMsgs = {
     CastError: NoSuchObj,
@@ -11,6 +12,7 @@ const getErrMsg = (err) => {
             return errMsgs[key]
         }
     }
+    return Undef
 }
 
 const errorHandler = async (err, req, res, next) => {

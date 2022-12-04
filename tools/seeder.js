@@ -2,7 +2,6 @@ const {readFile} = require('node:fs/promises');
 const mongoose = require('mongoose');
 const colors = require('colors');
 const dotenv = require('dotenv');
-const connDB = require("../conf/db");
 
 // load env
 dotenv.config({path: './conf/config.env'});
