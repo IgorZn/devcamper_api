@@ -1,4 +1,4 @@
-const NoSuchObj = "No such ObjectId";
+const NoSuchObj = { msg: "No such ObjectId", statusCode: 404 };
 
 const errMsgs = {
     CastError: NoSuchObj,
@@ -16,9 +16,10 @@ const getErrMsg = (err) => {
 const errorHandler = async (err, req, res, next) => {
     // console.error("Err stuck:".bold.bgMagenta, err.stack)
     // console.error("Err name:".bold.bgMagenta, Object.keys(err))
+    const { msg, statusCode } = getErrMsg(err)
     res
-        .status(err.statusCode || 500)
-        .json({success: false, error: getErrMsg(err) || err.message || "Internal Server Error"});
+        .status(err.statusCode || statusCode || 500 )
+        .json({success: false, error: msg || err.message || "Internal Server Error"});
 };
 
 module.exports = errorHandler;

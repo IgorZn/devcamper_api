@@ -22,6 +22,7 @@ const bootcamps = require('./routes/bootcamps.routes');
 const courses = require('./routes/courses.routes');
 const indexRouter = require('./routes/index.route');
 const usersRouter = require('./routes/users.route');
+const reviewsRouter = require('./routes/review.routes');
 const auth = require('./routes/auth.routes');
 
 // Simple express middleware for uploading files.
@@ -53,6 +54,7 @@ app.use('/api/v1/bootcamps', bootcamps);
 app.use('/api/v1/courses', courses);
 app.use('/api/v1/auth', auth);
 app.use('/api/v1/users', usersRouter);
+app.use('/api/v1/reviews', reviewsRouter);
 app.use('/', indexRouter);
 
 // catch 404 and forward to error handler

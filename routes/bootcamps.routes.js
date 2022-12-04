@@ -20,9 +20,11 @@ const Bootcamp = require("../models/Bootcamps.model");
 
 // Include other/forwarded resources routes
 const courseRouter = require('./courses.routes');
+const reviewRouter = require('./review.routes');
 
 // Re-route into other resource routers
 router.use('/:bootcampId/courses', courseRouter);
+router.use('/:bootcampId/reviews', reviewRouter);
 
 // Protect
 const { protect, authorize } = require('../middleware/auth.middleware');

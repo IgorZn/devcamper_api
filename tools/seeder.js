@@ -11,11 +11,13 @@ dotenv.config({path: './conf/config.env'});
 const Bootcamp = require("../models/Bootcamps.model");
 const Course = require("../models/Courses.model");
 const User = require("../models/User.model")
+const Review = require("../models/Review.model");
 
 // read JSON
 const bootcamps = require('../_data/bootcamps.json');
 const courses = require('../_data/courses.json');
 const users = require('../_data/users.json')
+const reviews = require('../_data/reviews.json')
 
 // Connect to DB
 mongoose.connect(process.env.MNG_URI, {
@@ -26,13 +28,14 @@ const dataJsonsAndModels = {
     BootcampModel: [Bootcamp, bootcamps],
     CourseModel: [Course, courses],
     UserModel: [User, users],
+    ReviewModel: [Review, reviews],
 };
 
 const importData = async () => {
     for (const key of Object.keys(dataJsonsAndModels)) {
         await dataJsonsAndModels[key][0].create(dataJsonsAndModels[key][1])
             .then(result => {
-                console.log(`[${key}] Data imported...`.bgGreen.inverse);
+                console.log(`[${key}] Data has been imported...`.bgGreen.inverse);
             })
             .catch(err => {
                 console.log(err)
