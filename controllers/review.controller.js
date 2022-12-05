@@ -71,20 +71,23 @@ exports.addReview = async (req, res, next) => {
             // One review per bootcamp
             Review.find({user: req.user.id, bootcamp: bootcampID})
                 .exec()
-                .then( result => {
-                    if (result.length >= 1) next(new ErrResponse('One review per user', 403))
+                .then(result => {
+                    if (result.length >= 1) {
+                        return next(new ErrResponse('One review per user', 403))
+                    }
+
+                    // Add review
+                    Review.create(req.body)
+                        .then(response => {
+                            res
+                                .status(201)
+                                .json({success: true, data: response});
+                        })
+                        .catch(err => {
+                            next(err);
+                        })
                 })
 
-            // Add review
-            Review.create(req.body)
-                .then(response => {
-                    res
-                        .status(201)
-                        .json({success: true, data: response});
-                })
-                .catch(err => {
-                    next(err);
-                })
 
         }).catch(err => {
             next(new ErrResponse(err, 404))
