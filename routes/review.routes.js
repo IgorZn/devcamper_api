@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router({mergeParams: true});
-const {getReviews, getReview, addReview} = require("../controllers/review.controller");
+const {getReviews, getReview, addReview, updReview, delReview} = require("../controllers/review.controller");
 
 
 // Middleware
@@ -26,6 +26,8 @@ router.route('/')
 
 router.route('/:id')
     .get(getReview)
+    .put(protect, authorize('user', 'admin'), updReview)
+    .delete(protect, authorize('user', 'admin'), delReview)
 
 
 module.exports = router;

@@ -94,3 +94,57 @@ exports.addReview = async (req, res, next) => {
         })
 
 };
+
+
+// @desc        Update review
+// @route       PUT /api/v1/reviews/:id
+// @access      Private
+exports.updReview = async (req, res, next) => {
+    await Review.findById(req.params.id)
+        .exec()
+        .then(result => {
+            // Make sure the user is owner or admin
+            if (result.user.toString() === req.user.id || req.user.role === 'admin') {
+                // Update course
+                Review.findByIdAndUpdate(req.params.id, req.body, {
+                    new: true,
+                    runValidators: true
+                }, (err, doc) => {
+                    if (err) {
+                        next(new ErrResponse(err, 404));
+                    } else {
+                        res
+                            .status(200)
+                            .json({success: true, data: doc});
+                    }
+                })
+            } else {
+                return next(new ErrResponse('You are not authorized to add/update/edit/delete course for this bootcamp', 401))
+            }
+        }).catch(e => next(e));
+
+};
+
+
+// @desc        Delete review
+// @route       DELETE /api/v1/reviews/:id
+// @access      Private
+exports.delReview = async (req, res, next) => {
+    await Review.findById(req.params.id)
+        .exec()
+        .then(result => {
+            // Make sure user bootcamp owner
+            if (result.user.toString() !== req.user.id && req.user.role !== 'admin') {
+                return next(new ErrResponse('You are not authorized to add/update/edit/delete course for this bootcamp', 401))
+            }
+
+            // Remove course
+            Review.findByIdAndRemove(req.params.id)
+                .exec()
+                .then(doc => {
+                    res
+                        .status(200)
+                        .json({success: true, data: doc});
+                }).catch(err => next(new ErrResponse(err, 404)))
+        })
+};
