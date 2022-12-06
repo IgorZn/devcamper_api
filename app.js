@@ -11,6 +11,9 @@ const fileUpload = require("express-fileupload");
 const mongoSanitize = require('express-mongo-sanitize');
 const bodyParser = require('body-parser');
 
+const helmet = require("helmet");
+const xss = require('xss-clean')
+
 // Load env consts
 dotenv.config({ path: './conf/config.env' });
 
@@ -25,6 +28,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(mongoSanitize())
 
+/* Helmet helps you secure your Express apps by setting various HTTP headers. */
+app.use(helmet());
+
+/* middleware to sanitize user input coming from POST body, GET queries, and url params. */
+app.use(xss());
 
 // Routers file
 const bootcamps = require('./routes/bootcamps.routes');

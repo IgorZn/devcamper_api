@@ -17,13 +17,15 @@
     "express": "~4.16.1",
     "express-fileupload": "^1.4.0",
     "express-mongo-sanitize": "^2.2.0",
+    "helmet": "^6.0.1",
     "http-errors": "~1.6.3",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.7.0",
     "morgan": "~1.9.1",
     "node-geocoder": "^4.2.0",
     "pug": "2.0.0-beta11",
-    "slugify": "^1.6.5"
+    "slugify": "^1.6.5",
+    "xss-clean": "^0.1.1"
   },
   "devDependencies": {
     "nodemon": "^2.0.20"
