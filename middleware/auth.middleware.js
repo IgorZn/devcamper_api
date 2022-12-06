@@ -11,11 +11,13 @@ exports.protect = async (req, res, next) => {
     let re = /\s(\w+.*)/
 
     if (headers && headers.startsWith(bearer)) {
+        /* Set token from Bearer token in header*/
         token = re.exec(headers)[1]
     }
-    // else if (req.cookie.token) {
-    //     token = req.cookie.token
-    // }
+    else if (req.cookies.token) {
+        /* Get and set token from cookie if not in header*/
+        token = req.cookies.token
+    }
 
     if (!token) return next(new ErrResponse('You are not authorize for this route', 401));
 

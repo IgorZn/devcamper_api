@@ -3,7 +3,7 @@ const router = express.Router();
 
 
 // Controllers
-const {regUser, loginUser, getMe, forgotPwd, resetPwd, updMe, updPwd} = require("../controllers/auth.controller");
+const {regUser, loginUser, getMe, forgotPwd, resetPwd, updMe, updPwd, logoutUser} = require("../controllers/auth.controller");
 const {protect} = require("../middleware/auth.middleware");
 
 
@@ -13,6 +13,9 @@ router.route('/register')
 
 router.route('/login')
     .post(loginUser)
+
+router.route('/logout')
+    .post(logoutUser)
 
 router.route('/me')
     .get(protect, getMe)

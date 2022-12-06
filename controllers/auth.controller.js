@@ -45,6 +45,24 @@ exports.loginUser = async (req, res, next) => {
 };
 
 
+// @desc        Logout current user
+// @route       GET /api/v1/auth/logout
+// @access      Private
+exports.logoutUser = async (req, res, next) => {
+    const options = {
+        expires: new Date(Date.now() + 10 * 1000),
+        httpOnly: true
+    }
+
+    res.cookie('token', 'none', options)
+
+    res
+        .status(200)
+        .json({success: true, data: null})
+
+};
+
+
 // @desc        Get current user
 // @route       GET /api/v1/auth/me
 // @access      Private
@@ -140,7 +158,7 @@ exports.updPwd = async (req, res, next) => {
         .exec()
         .then(async user => {
             // Check the password
-            if(!(await User.matchPassword(req.body.currentPassword, user.password))){
+            if (!(await User.matchPassword(req.body.currentPassword, user.password))) {
                 return next(new ErrResponse('Password is incorrect', 401))
             }
 
@@ -172,6 +190,6 @@ const sendTokenResponse = async (model, statusCode, res, data = undefined) => {
 
     res
         .status(statusCode)
-        .cookie('token', token, options)
+        .cookie('token', token, options)  // Set token to cookie
         .json({success: true, token})
 }
