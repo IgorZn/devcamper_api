@@ -8,6 +8,9 @@ const dotenv = require("dotenv");
 const connDB = require("./conf/db");
 const fileUpload = require("express-fileupload");
 
+const mongoSanitize = require('express-mongo-sanitize');
+const bodyParser = require('body-parser');
+
 // Load env consts
 dotenv.config({ path: './conf/config.env' });
 
@@ -16,6 +19,12 @@ connDB()
 
 
 const app = express();
+
+/* Mongo Sanitize */
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(mongoSanitize())
+
 
 // Routers file
 const bootcamps = require('./routes/bootcamps.routes');
@@ -73,7 +82,8 @@ app.use(function(req, res, next) {
 //   res.render('error');
 // });
 
-// Middleware
-app.use(errorHandler) // error handler
+/* MIDDLEWARE */
+app.use(errorHandler)           // error handler
+
 
 module.exports = app;
