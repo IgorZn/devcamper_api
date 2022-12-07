@@ -8,6 +8,11 @@ const dotenv = require("dotenv");
 const connDB = require("./conf/db");
 const fileUpload = require("express-fileupload");
 
+/* Swagger */
+const swaggerUi = require('swagger-ui-express');
+const YAML = require('yamljs');
+const swaggerDocument = YAML.load('./api.yaml');
+
 const cors = require('cors')
 
 const mongoSanitize = require('express-mongo-sanitize');
@@ -95,6 +100,8 @@ app.use('/api/v1/auth', auth);
 app.use('/api/v1/users', usersRouter);
 app.use('/api/v1/reviews', reviewsRouter);
 app.use('/', indexRouter);
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

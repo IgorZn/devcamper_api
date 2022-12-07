@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "NODE_ENV=production node ./bin/www",
-    "dev": "nodemon ./bin/www",
+    "dev": "nodemon ./bin/www --config nodemon.json",
     "test": "echo Test...."
   },
   "dependencies": {
@@ -28,7 +28,9 @@
     "node-geocoder": "^4.2.0",
     "pug": "2.0.0-beta11",
     "slugify": "^1.6.5",
-    "xss-clean": "^0.1.1"
+    "swagger-ui-express": "^4.6.0",
+    "xss-clean": "^0.1.1",
+    "yamljs": "^0.3.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.20"

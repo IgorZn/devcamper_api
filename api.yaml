@@ -1,0 +1,22 @@
+swagger: "2.0"
+info:
+  title: Devcamper API 2022+
+  description: This is Description
+  version: 1.0
+  contact:
+    email: igor.znamensky@gmail.com
+  license:
+    name: Apache 2.0
+    url: "https://apache.org"
+  servers:
+    -url: "http://localhost:5000"
+    description: Local server
+    -url: "http://company.com"
+    description: Company server
+
+schemes: [http, https]
+
+path:
+  get:
+    summary: Returns a string
+    description: It is just
